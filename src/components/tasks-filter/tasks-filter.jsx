@@ -1,20 +1,26 @@
 import React from 'react'
 import './tasks-filter.css'
 
-function TasksFilter() {
+function TasksFilter({changeActiveFilterName, activeFilterName}) {
   return (
     <ul className="filters">
         <li>
-          <button className="selected">All</button>
+          <button className= {activeFilterName === 'all' ? "selected" : null} onClick= {() => {
+            changeActiveFilterName('all');
+          }}>All</button>
         </li>
         <li>
-          <button>Active</button>
+          <button className= {activeFilterName === 'active' ? "selected" : null} onClick= {() => {
+            changeActiveFilterName('active');
+          }}>Active</button>
         </li>
         <li>
-          <button>Completed</button>
+          <button className= {activeFilterName === 'completed' ? "selected" : null} onClick= {() => {
+            changeActiveFilterName('completed');
+          }}>Completed</button>
         </li>
     </ul>
   )
 }
 
-export default TasksFilter
+export default TasksFilter;
