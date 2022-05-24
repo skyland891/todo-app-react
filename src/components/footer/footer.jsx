@@ -1,6 +1,7 @@
 import React from 'react'
 import TasksFilter from '../tasks-filter/'
 import './footer.css'
+import PropTypes from 'prop-types';
 
 function Footer({clearCompleted, completedTasksCount, changeActiveFilterName, activeFilterName}) {
   return (
@@ -12,6 +13,16 @@ function Footer({clearCompleted, completedTasksCount, changeActiveFilterName, ac
           }}>Clear completed</button>
         </footer>
   )
+}
+
+Footer.defaultProps = {
+  clearCompleted: () => {},
+  completedTasksCount: 0,
+}
+
+Footer.propTypes = {
+  clearCompleted: PropTypes.func.isRequired,
+  completedTasksCount: PropTypes.number.isRequired,
 }
 
 export default Footer

@@ -12,21 +12,13 @@ export default class App extends React.Component {
         {
           description: 'Completed task',
           status: 'completed',
-          createdDistance: 'created 17 seconds ago',
+          createdDistance: new Date(),
           id: 1,
         },
-        /*
-        {
-          description: 'Editing task',
-          status: 'editing',
-          createdDistance: 'created 5 minutes ago',
-          id: 2,
-        },
-        */
         {
           description: 'Active task',
           status: 'active',
-          createdDistance: 'created 5 minutes ago',
+          createdDistance:  new Date(),
           id: 3,
         }
       ],
@@ -79,7 +71,6 @@ export default class App extends React.Component {
   addTask = (task) => {
     this.setState(({tasks}) => {
       const newTasks = [...JSON.parse(JSON.stringify(tasks)), task];
-      //const newFiltredTasks = filterTasks();
       return {tasks: newTasks};
     });
   }
@@ -93,7 +84,8 @@ export default class App extends React.Component {
 
   editDescription = (description, id, prevStatus) => {
     this.setState(({tasks}) => {
-      const newTask = JSON.parse(JSON.stringify(tasks)).map(task => task.id === id ? {...task, description: description, status: prevStatus} : task);
+      const newTask = JSON.parse(JSON.stringify(tasks))
+      .map(task => task.id === id ? {...task, description: description, status: prevStatus} : task);
       return {tasks: newTask};
     });
   }
@@ -103,8 +95,19 @@ export default class App extends React.Component {
       <section className="todoapp">
         <Header addTask= {this.addTask}/>
         <section className="main">
-          <TaskList tasks= {this.filterTasks()} editDescription= {this.editDescription} changeStatus= {this.changeStatus} deleteTask= {this.deleteTask}/>
-          <Footer clearCompleted= {this.clearCompleted} completedTasksCount= {this.activeCount()} changeActiveFilterName= {this.changeActiveFilterName} activeFilterName= {this.state.activeFilterName}/>
+
+          <TaskList 
+          tasks= {this.filterTasks()} 
+          editDescription= {this.editDescription} 
+          changeStatus= {this.changeStatus} 
+          deleteTask= {this.deleteTask}/>
+
+          <Footer 
+          clearCompleted= {this.clearCompleted} 
+          completedTasksCount= {this.activeCount()} 
+          changeActiveFilterName= {this.changeActiveFilterName} 
+          activeFilterName= {this.state.activeFilterName}/>
+
         </section>
       </section>
     );
