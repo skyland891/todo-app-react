@@ -1,5 +1,6 @@
 import React from 'react'
 import './new-task-form.css'
+import PropTypes from 'prop-types'
 /*
 function NewTaskForm() {
   return (
@@ -16,6 +17,14 @@ export default class NewTaskForm extends React.Component {
     };
   }
 
+  static defaultProps = {
+    addTask: () => {},
+  }
+
+  static propTypes = {
+    addTask: PropTypes.func.isRequired,
+  }
+
   onLabelChange = (e) => {
     this.setState({
       label: e.target.value,
@@ -27,7 +36,7 @@ export default class NewTaskForm extends React.Component {
     this.props.addTask({
       description: this.state.label,
       status: 'active',
-      createdDistance: 'created 1 seconds ago',
+      createdDistance:  new Date(),
       id: this.state.maxId,
     });
     this.setState({
@@ -39,7 +48,14 @@ export default class NewTaskForm extends React.Component {
   render() {
     return (
       <form  onSubmit={this.onSubmit}>
-        <input className="new-todo" placeholder="What needs to be done?" value= {this.state.label} autoFocus onChange={this.onLabelChange}/>
+
+        <input 
+        className="new-todo" 
+        placeholder="What needs to be done?" 
+        value= {this.state.label} 
+        autoFocus 
+        onChange={this.onLabelChange}/>
+
       </form>
     )
   }
