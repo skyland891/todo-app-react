@@ -1,7 +1,7 @@
 import React from "react";
-import Task from "../task/";
-import "./task-list.css";
 import PropTypes from "prop-types";
+import Task from "../task";
+import "./task-list.css";
 /*
 function TaskList({tasks, changeStatus, deleteTask}) {
   return (
@@ -45,11 +45,21 @@ class TaskList extends React.Component {
   };
 
   static defaultProps = {
-    editDescription: () => {},
+    editDescription: () => { },
+    changeStatus: () => { },
+    deleteTask: () => { },
+    editClick: () => { },
   };
 
   static propTypes = {
     editDescription: PropTypes.func.isRequired,
+    id: PropTypes.number.isRequired,
+    label: PropTypes.string.isRequired,
+    status: PropTypes.oneOf(["completed", "active", "editing"]).isRequired,
+    changeStatus: PropTypes.func.isRequired,
+    deleteTask: PropTypes.func.isRequired,
+    editClick: PropTypes.func.isRequired,
+    tasks: PropTypes.arrayOf(PropTypes.object),
   };
 
   editClick = (taskName, id, status) => {
