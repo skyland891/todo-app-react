@@ -41,9 +41,7 @@ class Task extends React.Component {
   }
 
   static defaultProps = {
-    changeStatus: () => {
-      console.log("no");
-    },
+    changeStatus: () => {},
     deleteTask: () => {},
     editClick: () => {},
   };
@@ -55,10 +53,11 @@ class Task extends React.Component {
     changeStatus: PropTypes.func.isRequired,
     deleteTask: PropTypes.func.isRequired,
     editClick: PropTypes.func.isRequired,
+    distance: PropTypes.string.isRequired,
   };
 
   componentDidMount() {
-    let intervalId = setInterval(() => {
+    const intervalId = setInterval(() => {
       this.setState({
         distance: formatDistanceToNow(new Date(this.props.distance), {
           includeSeconds: true,
