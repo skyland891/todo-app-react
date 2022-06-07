@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import "./header.css";
 import NewTaskForm from "../new-task-form";
 
 function Header({ addTask }) {
