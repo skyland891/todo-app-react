@@ -11,12 +11,20 @@ export default class App extends React.Component {
       tasks: [
         {
           description: "Completed task",
+          initialTimer: ["12", "25"],
+          timerMin: "12",
+          timerSec: "25",
+          timerId: null,
           status: "completed",
           createdDistance: new Date(),
           id: 1,
         },
         {
           description: "Active task",
+          initialTimer: ["12", "25"],
+          timerMin: "12",
+          timerSec: "25",
+          timerId: null,
           status: "active",
           createdDistance: new Date(),
           id: 3,
@@ -24,6 +32,17 @@ export default class App extends React.Component {
       ],
       activeFilterName: "all",
     };
+  }
+
+  componentDidMount() {
+    const tasks = localStorage.tasks ? JSON.parse(localStorage.tasks) : [];
+    this.setState({
+      tasks: tasks,
+    });
+  }
+
+  componentDidUpdate() {
+    localStorage.tasks = JSON.stringify(this.state.tasks);
   }
 
   filterTasks = () => {
@@ -97,6 +116,62 @@ export default class App extends React.Component {
     });
   };
 
+  stopTimer = (id) => {
+    const taskIndex = this.state.tasks.findIndex((task) => task.id === id);
+    clearInterval(this.state.tasks[taskIndex].timerId);
+    this.setState((prevState) => {
+      const newState = JSON.parse(JSON.stringify(prevState));
+      newState.tasks[taskIndex].timerId = null;
+      return newState;
+    });
+  };
+
+  updateTimer = (min, sec) => {
+    const minNum = parseInt(min, 10);
+    const secNum = parseInt(sec, 10);
+    if (sec === "00") {
+      if (min === "00") {
+        return ["00", "00"];
+      }
+      const newMin =
+        `${minNum - 1}`.length >= 2 ? `${minNum - 1}` : `0${minNum - 1}`;
+      return [newMin, "59"];
+    }
+    const newSec =
+      `${secNum - 1}`.length === 2 ? `${secNum - 1}` : `0${secNum - 1}`;
+    return [min, newSec];
+  };
+
+  startTimer = (id) => {
+    const taskIndex = this.state.tasks.findIndex((task) => task.id === id);
+    if (
+      this.state.tasks[taskIndex].timerId ||
+      this.state.tasks[taskIndex].status === "completed"
+    ) {
+      return;
+    }
+    const timerId = setInterval(() => {
+      this.setState((prevState) => {
+        const newState = JSON.parse(JSON.stringify(prevState));
+        const sec = newState.tasks[taskIndex].timerSec;
+        const min = newState.tasks[taskIndex].timerMin;
+        let [newMin, newSec] = this.updateTimer(min, sec);
+        if (newMin === "00" && newSec === "00") {
+          this.stopTimer(newState.tasks[taskIndex].id);
+          [newMin, newSec] = newState.tasks[taskIndex].initialTimer;
+        }
+        newState.tasks[taskIndex].timerSec = newSec;
+        newState.tasks[taskIndex].timerMin = newMin;
+        return newState;
+      });
+    }, 1000);
+    this.setState((prevState) => {
+      const newState = JSON.parse(JSON.stringify(prevState));
+      newState.tasks[taskIndex].timerId = timerId;
+      return newState;
+    });
+  };
+
   render() {
     return (
       <section className="todoapp">
@@ -107,6 +182,8 @@ export default class App extends React.Component {
             editDescription={this.editDescription}
             changeStatus={this.changeStatus}
             deleteTask={this.deleteTask}
+            startTimer={this.startTimer}
+            stopTimer={this.stopTimer}
           />
 
           <Footer

@@ -28,6 +28,7 @@
         "import/extensions": "off",
         "import/no-unresolved": "off",
         "arrow-body-style": "off",
-        "object-shorthand": "off"
+        "object-shorthand": "off",
+        "class-methods-use-this": "off"
     }
 }
