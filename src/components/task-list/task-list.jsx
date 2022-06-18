@@ -45,17 +45,18 @@ class TaskList extends React.Component {
   };
 
   static defaultProps = {
-    editDescription: () => { },
-    changeStatus: () => { },
-    deleteTask: () => { },
-    editClick: () => { },
+    startTimer: () => {},
+    stopTimer: () => {},
+    editDescription: () => {},
+    changeStatus: () => {},
+    deleteTask: () => {},
+    editClick: () => {},
   };
 
   static propTypes = {
     editDescription: PropTypes.func.isRequired,
-    id: PropTypes.number.isRequired,
-    label: PropTypes.string.isRequired,
-    status: PropTypes.oneOf(["completed", "active", "editing"]).isRequired,
+    startTimer: PropTypes.func.isRequired,
+    stopTimer: PropTypes.func.isRequired,
     changeStatus: PropTypes.func.isRequired,
     deleteTask: PropTypes.func.isRequired,
     editClick: PropTypes.func.isRequired,
@@ -67,7 +68,6 @@ class TaskList extends React.Component {
       const { inputValue, inputId, prevStatus } = this.state;
       this.props.editDescription(inputValue, inputId, prevStatus);
     }
-    console.log(taskName, id);
     this.setState({
       inputValue: taskName,
       inputId: id,
@@ -77,7 +77,8 @@ class TaskList extends React.Component {
   };
 
   render() {
-    const { tasks, changeStatus, deleteTask } = this.props;
+    const { tasks, changeStatus, deleteTask, startTimer, stopTimer } =
+      this.props;
     return (
       <ul className="todo-list">
         {tasks.map((task) => (
@@ -85,11 +86,15 @@ class TaskList extends React.Component {
             <Task
               id={task.id}
               label={task.description}
+              timerMin={task.timerMin}
+              timerSec={task.timerSec}
               distance={task.createdDistance}
               status={task.status}
               changeStatus={changeStatus}
               deleteTask={deleteTask}
               editClick={this.editClick}
+              startTimer={startTimer}
+              stopTimer={stopTimer}
             />
 
             <form onSubmit={this.onSubmit}>
