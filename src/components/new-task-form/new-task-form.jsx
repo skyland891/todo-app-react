@@ -1,114 +1,89 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./new-task-form.css";
 import PropTypes from "prop-types";
-/*
-function NewTaskForm() {
-  return (
-    <input className="new-todo" placeholder="What needs to be done?" autoFocus/>
-  )
-}
-*/
-export default class NewTaskForm extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      label: "",
-      maxId: 100,
-      timerMin: "",
-      timerSec: "",
-    };
-  }
 
-  componentDidMount() {
-    this.setState({
-      maxId: localStorage.maxId ? JSON.parse(localStorage.maxId) : 100,
-    });
-  }
+function NewTaskForm({ addTask }) {
+  const [label, setLabel] = useState("");
+  const [maxId, setMaxId] = useState(100);
+  const [timerMin, setTimerMin] = useState("");
+  const [timerSec, setTimerSec] = useState("");
 
-  static defaultProps = {
-    addTask: () => {},
+  useEffect(() => {
+    setMaxId(localStorage.maxId ? JSON.parse(localStorage.maxId) : 100);
+  }, []);
+
+  const onLabelChange = (e) => {
+    setLabel(e.target.value);
   };
 
-  static propTypes = {
-    addTask: PropTypes.func.isRequired,
+  const onTimerMinChange = (e) => {
+    setTimerMin(e.target.value);
   };
 
-  onLabelChange = (e) => {
-    this.setState({
-      label: e.target.value,
-    });
+  const onTimerSecChange = (e) => {
+    setTimerSec(e.target.value);
   };
 
-  onTimerMinChange = (e) => {
-    this.setState({
-      timerMin: e.target.value,
-    });
-  };
-
-  onTimerSecChange = (e) => {
-    this.setState({
-      timerSec: e.target.value,
-    });
-  };
-
-  onSubmit = (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
-    const emptyLabel = this.state.label.trim() === "";
-    const secIsNaN = Number.isNaN(parseInt(this.state.timerSec, 10));
-    const minIsNaN = Number.isNaN(parseInt(this.state.timerMin, 10));
+    const emptyLabel = label.trim() === "";
+    const secIsNaN = Number.isNaN(parseInt(timerSec, 10));
+    const minIsNaN = Number.isNaN(parseInt(timerMin, 10));
     const wrongSecInterval =
-      parseInt(this.state.timerSec, 10) >= 60 ||
-      parseInt(this.state.timerSec, 10) < 0;
+      parseInt(timerSec, 10) >= 60 || parseInt(timerSec, 10) < 0;
     if (emptyLabel || secIsNaN || minIsNaN || wrongSecInterval) {
       return;
     }
-    this.props.addTask({
-      description: this.state.label,
-      initialTimer: [this.state.timerMin, this.state.timerSec],
-      timerMin: this.state.timerMin,
-      timerSec:
-        this.state.timerSec.length === 1
-          ? `0${this.state.timerSec}`
-          : this.state.timerSec,
+    addTask({
+      description: label,
+      initialTimer: [timerMin, timerSec],
+      timerMin: timerMin,
+      timerSec: timerSec.length === 1 ? `0${timerSec}` : timerSec,
       status: "active",
       createdDistance: new Date(),
-      id: this.state.maxId,
+      id: maxId,
     });
-    this.setState({
-      maxId: this.state.maxId + 1,
-      label: "",
-      timerMin: "",
-      timerSec: "",
-    });
-    localStorage.maxId = JSON.stringify(this.state.maxId + 1);
+    setTimerMin("");
+    setTimerSec("");
+    setLabel("");
+    setMaxId((prevMaxId) => prevMaxId + 1);
+    localStorage.maxId = JSON.stringify(maxId + 1);
   };
 
-  render() {
-    return (
-      <form className="new-todo-form" onSubmit={this.onSubmit}>
-        <input
-          className="new-todo"
-          placeholder="What needs to be done?"
-          value={this.state.label}
-          autoFocus
-          onChange={this.onLabelChange}
-        />
-        <input
-          className="new-todo-form__timer"
-          placeholder="Min"
-          autoFocus
-          value={this.state.timerMin}
-          onChange={this.onTimerMinChange}
-        ></input>
-        <input
-          className="new-todo-form__timer"
-          placeholder="Sec"
-          autoFocus
-          value={this.state.timerSec}
-          onChange={this.onTimerSecChange}
-        ></input>
-        <button className="hidden" type="submit"></button>
-      </form>
-    );
-  }
+  return (
+    <form className="new-todo-form" onSubmit={onSubmit}>
+      <input
+        className="new-todo"
+        placeholder="What needs to be done?"
+        value={label}
+        autoFocus
+        onChange={onLabelChange}
+      />
+      <input
+        className="new-todo-form__timer"
+        placeholder="Min"
+        autoFocus
+        value={timerMin}
+        onChange={onTimerMinChange}
+      ></input>
+      <input
+        className="new-todo-form__timer"
+        placeholder="Sec"
+        autoFocus
+        value={timerSec}
+        onChange={onTimerSecChange}
+      ></input>
+      <button className="hidden" type="submit"></button>
+    </form>
+  );
 }
+
+NewTaskForm.defaultProps = {
+  addTask: () => {},
+};
+
+NewTaskForm.propTypes = {
+  addTask: PropTypes.func.isRequired,
+};
+
+export default NewTaskForm;

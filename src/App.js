@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Footer from "./components/footer";
 import Header from "./components/header";
 import TaskList from "./components/task-list";
 import "./App.css";
-
+/*
 export default class App extends React.Component {
   constructor() {
     super();
@@ -197,3 +197,172 @@ export default class App extends React.Component {
     );
   }
 }
+*/
+
+function App() {
+  const [taskList, setTaskList] = useState([]);
+  const [activeFilterName, setActiveFilterName] = useState("all");
+  const [mountedFlag, setMountedFlag] = useState(false);
+
+  useEffect(() => {
+    const tasks = localStorage.tasks ? JSON.parse(localStorage.tasks) : [];
+    setTaskList(tasks);
+    setMountedFlag(true);
+  }, []);
+
+  useEffect(() => {
+    if (mountedFlag) {
+      localStorage.tasks = JSON.stringify(taskList);
+    }
+  }, [taskList]);
+
+  const filterTasks = () => {
+    const tasks = JSON.parse(JSON.stringify(taskList));
+    return tasks.filter((task) => {
+      if (activeFilterName === "all") {
+        return true;
+      }
+      return task.status === activeFilterName;
+    });
+  };
+
+  const changeActiveFilterName = (name) => {
+    setActiveFilterName(name);
+  };
+
+  const changeStatus = (status, id) => {
+    setTaskList((tasks) => {
+      const newTasks = tasks.map((task) => {
+        const newTask = { ...task };
+        if (newTask.id === id) {
+          newTask.status = status;
+        }
+        return newTask;
+      });
+      return newTasks;
+    });
+  };
+
+  const deleteTask = (id) => {
+    setTaskList((tasks) => {
+      const newTasks = JSON.parse(JSON.stringify(tasks)).filter(
+        (task) => task.id !== id
+      );
+      return newTasks;
+    });
+  };
+
+  const activeCount = () => {
+    return taskList.reduce((accum, task) => {
+      return accum + (task.status === "active" ? 1 : 0);
+    }, 0);
+  };
+
+  const addTask = (task) => {
+    setTaskList((tasks) => {
+      const newTasks = [...JSON.parse(JSON.stringify(tasks)), task];
+      return newTasks;
+    });
+  };
+
+  const clearCompleted = () => {
+    setTaskList((tasks) => {
+      const newTasks = JSON.parse(JSON.stringify(tasks)).filter(
+        (task) => task.status !== "completed"
+      );
+      return newTasks;
+    });
+  };
+
+  const editDescription = (description, id, prevStatus) => {
+    setTaskList((tasks) => {
+      const newTasks = JSON.parse(JSON.stringify(tasks)).map((task) =>
+        task.id === id
+          ? { ...task, description: description, status: prevStatus }
+          : task
+      );
+      return newTasks;
+    });
+  };
+
+  const stopTimer = (id) => {
+    const taskIndex = taskList.findIndex((task) => task.id === id);
+    clearInterval(taskList[taskIndex].timerId);
+    setTaskList((tasks) => {
+      const newTasks = JSON.parse(JSON.stringify(tasks));
+      newTasks[taskIndex].timerId = null;
+      return newTasks;
+    });
+  };
+
+  const updateTimer = (min, sec) => {
+    const minNum = parseInt(min, 10);
+    const secNum = parseInt(sec, 10);
+    if (sec === "00") {
+      if (min === "00") {
+        return ["00", "00"];
+      }
+      const newMin =
+        `${minNum - 1}`.length >= 2 ? `${minNum - 1}` : `0${minNum - 1}`;
+      return [newMin, "59"];
+    }
+    const newSec =
+      `${secNum - 1}`.length === 2 ? `${secNum - 1}` : `0${secNum - 1}`;
+    return [min, newSec];
+  };
+
+  const startTimer = (id) => {
+    const taskIndex = taskList.findIndex((task) => task.id === id);
+    if (
+      taskList[taskIndex].timerId ||
+      taskList[taskIndex].status === "completed"
+    ) {
+      return;
+    }
+    const timerId = setInterval(() => {
+      setTaskList((tasks) => {
+        const newTasks = JSON.parse(JSON.stringify(tasks));
+        const sec = newTasks[taskIndex].timerSec;
+        const min = newTasks[taskIndex].timerMin;
+        let [newMin, newSec] = updateTimer(min, sec);
+        if (newMin === "00" && newSec === "00") {
+          stopTimer(newTasks[taskIndex].id);
+          [newMin, newSec] = newTasks[taskIndex].initialTimer;
+        }
+        newTasks[taskIndex].timerSec = newSec;
+        newTasks[taskIndex].timerMin = newMin;
+        return newTasks;
+      });
+    }, 1000);
+    setTaskList((tasks) => {
+      const newTasks = JSON.parse(JSON.stringify(tasks));
+      newTasks[taskIndex].timerId = timerId;
+      return newTasks;
+    });
+  };
+
+  return (
+    <section className="todoapp">
+      <Header addTask={addTask} />
+      <section className="main">
+        <TaskList
+          tasks={filterTasks()}
+          editDescription={editDescription}
+          changeStatus={changeStatus}
+          deleteTask={deleteTask}
+          startTimer={startTimer}
+          stopTimer={stopTimer}
+        />
+
+        <Footer
+          clearCompleted={clearCompleted}
+          completedTasksCount={activeCount()}
+          changeActiveFilterName={changeActiveFilterName}
+          activeFilterName={activeFilterName}
+        />
+      </section>
+    </section>
+  );
+}
+
+export default App;
